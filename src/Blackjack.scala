@@ -23,7 +23,7 @@ def calculateScore(cards: List[Any]) : Int = {
         case "9" => scoreInc = 9
         case "10" => case "J" => case "Q" => case "K" => scoreInc = 10
         case "A" => hasAce = true
-        case nil => break
+        case nil => println("card is nil")
       }
 
       if (hasAce)
