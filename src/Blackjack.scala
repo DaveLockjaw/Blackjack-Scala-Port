@@ -1,6 +1,7 @@
 import scala.util.Random
 import scala.io.StdIn.readLine
 import util.control.Breaks._
+import scala.collection.mutable.ListBuffer
 
 object Blackjack {
 
@@ -65,7 +66,7 @@ def calculateScore(cards: List[Any]) : Int = {
     println(shuffledDeck)
 
     println("Dealer draws first card. \n")
-    val x = dealerCards ++ shuffledDeck.last
+    val dealerCardDeck = dealerCards ++ shuffledDeck.last
     val newDeck = shuffledDeck.dropRight(1)
 
     println("Player receives two cards")
@@ -74,37 +75,54 @@ def calculateScore(cards: List[Any]) : Int = {
     val z = playerCards ++ newDeck2.last
     val a = y ++ z
     val newDeck3 = newDeck2.dropRight(1)
-    printStatus(a, x)
+    printStatus(a, dealerCardDeck)
 
-    println(calculateScore(z))
+    //println(calculateScore(z))
 
+    var playerCardDeck = List[Any]()
     while(true) { // player decision loop
       println("Do you want to (H)it", "(S)tay, or (Q)uit")
       val selection = readLine()
       val upperCaseSelection = selection.toUpperCase()
 
-      if (upperCaseSelection == "H") { //hit
-        val b = playerCards ++ newDeck3.last
-        val newDeck4 = newDeck3.dropRight(1)
-        printStatus(b, x)
+        if (upperCaseSelection == "H") { //hit
+          playerCardDeck = playerCards ++ newDeck3.last
 
-        if (calculateScore(b) > 21) {
-          println("You busted! You lost!")
+          printStatus(playerCardDeck, dealerCardDeck)
+
+          if (calculateScore(playerCardDeck) > 21) {
+            println("You busted! You lost!")
+            break
+          }
+        } else if (upperCaseSelection == "S") { //stay
+          break
+        } else if (upperCaseSelection == "Q") { //quit
           break
         }
-      } else if (upperCaseSelection == "S") { //stay
-        break
-      } else if (upperCaseSelection == "Q") { //quit
-        break
       }
-    }
 
 
     println ("Dealer draws rest of cards.")
     //keep drawing cards till 17
-//    while (calculateScore(x) > 21) {
+    var deckBuffer = new ListBuffer[String]()
+    while (calculateScore(dealerCardDeck) < 17) {
+      val newDeck4 = newDeck3.dropRight(1)
 
-//    }
-//    printStatus(b, x) // ***************
+      deckBuffer += newDeck4.last
+      newDeck4.dropRight(1)
+      println(newDeck4)
+    }
+    val toListDeck = deckBuffer.toList
+    printStatus(playerCardDeck, toListDeck) // ***************
+
+    if (calculateScore(toListDeck) > 21){
+      println("Dealer busts! You Win!")
+    } else if (calculateScore(toListDeck) > calculateScore(playerCardDeck)) {
+      println("Dealer wins!")
+    } else if (calculateScore(toListDeck) < calculateScore(playerCardDeck)) {
+      println("You Win!")
+    } else{
+      println("It's a tie!")
+    }
   }
 }
